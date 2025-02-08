@@ -1,10 +1,11 @@
 import axios from 'axios';
 import proxy from '../configs/host';
+import { TOKEN_NAME } from 'modules/user';
 
 const env = import.meta.env.MODE || 'development';
 const API_HOST = proxy[env].API;
 
-const SUCCESS_CODE = 0;
+const SUCCESS_CODE = '1';
 const TIMEOUT = 5000;
 
 export const instance = axios.create({
@@ -13,13 +14,24 @@ export const instance = axios.create({
   withCredentials: true,
 });
 
+instance.interceptors.request.use(
+  (config) => {
+    config.headers['Content-Type'] = 'application/json';
+    const token = localStorage.getItem(TOKEN_NAME);
+    if (token) {
+      config.headers.Authorization = token;
+    }
+    return config;
+  },
+  (e) => Promise.reject(e),
+);
+
 instance.interceptors.response.use(
-  // eslint-disable-next-line consistent-return
   (response) => {
     if (response.status === 200) {
       const { data } = response;
       if (data.code === SUCCESS_CODE) {
-        return data;
+        return Promise.resolve(data);
       }
       return Promise.reject(data);
     }
@@ -29,3 +41,9 @@ instance.interceptors.response.use(
 );
 
 export default instance;
+
+export interface Result<T> {
+  code: string;
+  message: string;
+  data: T;
+}

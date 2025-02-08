@@ -1,49 +1,18 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { RootState } from '../store';
 
 const namespace = 'user';
-const TOKEN_NAME = 'tdesign-starter';
+export const TOKEN_NAME = 'tdesign-starter';
+export const USER_INFO = 'userInfo';
+
+export interface IUserState {
+  token: string;
+  userInfo: Record<string, any>;
+}
 
 const initialState = {
-  token: localStorage.getItem(TOKEN_NAME) || 'main_token', // 默认token不走权限
-  userInfo: {},
+  token: localStorage.getItem(TOKEN_NAME), // 默认token不走权限
+  userInfo: JSON.parse(localStorage.getItem(USER_INFO) || '{}'),
 };
-
-// login
-export const login = createAsyncThunk(`${namespace}/login`, async (userInfo: Record<string, unknown>) => {
-  const mockLogin = async (userInfo: Record<string, unknown>) => {
-    // 登录请求流程
-    console.log(userInfo);
-    // const { account, password } = userInfo;
-    // if (account !== 'td') {
-    //   return {
-    //     code: 401,
-    //     message: '账号不存在',
-    //   };
-    // }
-    // if (['main_', 'dev_'].indexOf(password) === -1) {
-    //   return {
-    //     code: 401,
-    //     message: '密码错误',
-    //   };
-    // }
-    // const token = {
-    //   main_: 'main_token',
-    //   dev_: 'dev_token',
-    // }[password];
-    return {
-      code: 200,
-      message: '登陆成功',
-      data: 'main_token',
-    };
-  };
-
-  const res = await mockLogin(userInfo);
-  if (res.code === 200) {
-    return res.data;
-  }
-  throw res;
-});
 
 // getUserInfo
 export const getUserInfo = createAsyncThunk(`${namespace}/getUserInfo`, async (_, { getState }: any) => {
@@ -70,8 +39,17 @@ const userSlice = createSlice({
   name: namespace,
   initialState,
   reducers: {
+    login: (state, action) => {
+      if (action.payload) {
+        localStorage.setItem(TOKEN_NAME, action.payload.token);
+        localStorage.setItem(USER_INFO, JSON.stringify(action.payload.user));
+        state.token = action.payload.token;
+        state.userInfo = action.payload.user;
+      }
+    },
     logout: (state) => {
       localStorage.removeItem(TOKEN_NAME);
+      localStorage.removeItem(USER_INFO);
       state.token = '';
       state.userInfo = {};
     },
@@ -79,21 +57,8 @@ const userSlice = createSlice({
       state.token = '';
     },
   },
-  extraReducers: (builder) => {
-    builder
-      .addCase(login.fulfilled, (state, action) => {
-        localStorage.setItem(TOKEN_NAME, action.payload);
-
-        state.token = action.payload;
-      })
-      .addCase(getUserInfo.fulfilled, (state, action) => {
-        state.userInfo = action.payload;
-      });
-  },
 });
 
-export const selectListBase = (state: RootState) => state.listBase;
-
-export const { logout, remove } = userSlice.actions;
+export const { login, logout, remove } = userSlice.actions;
 
 export default userSlice.reducer;

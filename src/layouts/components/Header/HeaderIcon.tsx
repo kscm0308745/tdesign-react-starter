@@ -14,6 +14,7 @@ import { useAppDispatch } from 'modules/store';
 import { toggleSetting } from 'modules/global';
 import { logout } from 'modules/user';
 import Style from './HeaderIcon.module.less';
+import { doLogout } from 'services/user';
 
 const { DropdownMenu, DropdownItem } = Dropdown;
 
@@ -35,6 +36,11 @@ export default memo(() => {
     }
   };
   const handleLogout = async () => {
+    try {
+      await doLogout();
+    } catch (error) {
+      console.log(error);
+    }
     await dispatch(logout());
     navigate('/login/index');
   };

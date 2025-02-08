@@ -5,7 +5,7 @@ export default {
   },
   development: {
     // 开发环境接口请求
-    API: 'https://service-exndqyuk-1257786608.gz.apigw.tencentcs.com',
+    API: 'http://localhost:8000',
   },
   test: {
     // 测试环境接口地址

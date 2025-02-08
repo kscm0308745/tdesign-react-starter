@@ -8,6 +8,7 @@ import result from './modules/result';
 import user from './modules/user';
 import login from './modules/login';
 import otherRoutes from './modules/others';
+import system from './modules/system';
 
 export interface IRouter {
   path: string;
@@ -50,6 +51,17 @@ const routes: IRouter[] = [
   },
 ];
 
-const allRoutes = [...routes, ...dashboard, ...list, ...form, ...detail, ...result, ...user, ...login, ...otherRoutes];
+const allRoutes = [
+  ...routes,
+  ...dashboard,
+  ...system,
+  ...list,
+  ...form,
+  ...detail,
+  ...result,
+  ...user,
+  ...login,
+  ...otherRoutes,
+];
 
 export default allRoutes;
